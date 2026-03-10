@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="pl" theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPLINK // COMMAND_CENTER_V8 // EXPANDED_NODE_CONTROL</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="alert.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+
+    <!-- HUD BACKGROUND -->
+    <div class="svg-hud-overlay">
+        <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" id="hud-svg">
+            <path d="M0 50 L150 50 L180 80 L820 80 L850 50 L1000 50" />
+            <path d="M50 0 L50 200 L30 230 L30 770 L50 800 L50 1000" />
+            <path d="M950 0 L950 200 L970 230 L970 770 L950 800 L950 1000" />
+            <!-- Scanner Lines -->
+            <line x1="0" y1="150" x2="1000" y2="150" opacity="0.1" />
+            <line x1="0" y1="850" x2="1000" y2="850" opacity="0.1" />
+        </svg>
+    </div>
+
+    <!-- SIDE NAVIGATION -->
+    <nav class="sidebar">
+        <div class="nav-item ripple-el active" onclick="switchTab('dashboard')" id="nav-dashboard">
+            <i data-lucide="layout-grid"></i>
+        </div>
+        <div class="nav-item ripple-el" onclick="switchTab('network')" id="nav-network">
+            <i data-lucide="rss"></i>
+        </div>
+        <div class="nav-item ripple-el" onclick="switchTab('archive')" id="nav-archive">
+            <i data-lucide="database"></i>
+        </div>
+        <div class="nav-item ripple-el" onclick="switchTab('system')" id="nav-system">
+            <i data-lucide="cpu"></i>
+        </div>
+        <div class="nav-item nav-item--spacer ripple-el"><i data-lucide="log-out"></i></div>
+    </nav>
+
+    <!-- MAIN VIEWPORT -->
+    <main class="viewport">
+
+        <!-- HEADER -->
+        <header class="header-block">
+            <h1 class="hero-title">
+                <span>OPERATOR</span>
+                <span class="accent">MATRIX</span>
+                <span>SYSTEM_V8</span>
+            </h1>
+            <div class="poster-meta">
+                <span class="meta-unit">UPLINK_IDENTITY</span>
+                <span class="meta-value">0x44_SEC_ALPHA</span>
+                <div class="poster-meta__row">
+                    <span class="meta-unit">DATA_FLOW</span>
+                    <span id="live-timer" class="meta-value">00:00:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- SECTION: DASHBOARD -->
+        <div id="dashboard" class="section active">
+            <div class="dashboard-grid">
+
+                <!-- Main Status Module -->
+                <div class="module span-8">
+
+                    <div class="label">System_Core_Handshake</div>
+                    <h2 class="node-status-title">NODE_01: ONLINE</h2>
+                    <p class="node-status-desc">
+                    <div class="node-link-container">
+                        <button class="node-link" onclick="window.open('https://ntpd.eu/', '_blank')"><i
+                                data-lucide="link"></i> NTPD_EU</button>
+                    </div>
+                    </p>
+
+                </div>
+
+                <!-- Data i czas -->
+                <div class="module span-4 module--datetime">
+                    <div class="label">Data_i_czas</div>
+                    <div class="datetime-block">
+                        <div class="datetime-date" id="dashboard-date" aria-live="polite"></div>
+                        <div class="datetime-time" id="dashboard-time" aria-live="polite"></div>
+                    </div>
+                    <script>
+                        (function () {
+                            var dateEl = document.getElementById('dashboard-date');
+                            var timeEl = document.getElementById('dashboard-time');
+                            var optsDate = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
+                            var optsTime = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+                            function update() {
+                                if (dateEl && timeEl) {
+                                    var now = new Date();
+                                    dateEl.textContent = now.toLocaleDateString('pl-PL', optsDate);
+                                    timeEl.textContent = now.toLocaleTimeString('pl-PL', optsTime);
+                                }
+                            }
+                            update();
+                            setInterval(update, 1000);
+                        })();
+                    </script>
+                </div>
+
+                <!-- Resource Matrix -->
+                <div class="module span-12">
+                    <div class="label">Resource_Allocation_Map</div>
+                    <div class="resource-grid">
+                        <div>
+                            <div class="resource-label">GitHub_Status</div>
+                            <div class="resource-val" id="github-status">...</div>
+                        </div>
+                        <div>
+                            <div class="resource-label">Notes_Count</div>
+                            <div class="resource-val" id="notes-count">0</div>
+                        </div>
+                        <div>
+                            <div class="resource-label">Notes_GitHub</div>
+                            <div class="resource-val" id="notes-github-count">—</div>
+                        </div>
+                        <div>
+                            <div class="resource-label">Do_przesłania</div>
+                            <div class="resource-val" id="notes-to-push-count">0</div>
+                        </div>
+                        <div>
+                            <div class="resource-label">Links</div>
+                            <div class="resource-val">
+                                <span id="network-links-count">0</span>
+                                <span style="color:var(--text-muted);margin:0 3px;">/</span>
+                                <span id="archive-links-count">0</span>
+                                <span style="color:var(--text-muted);margin:0 3px;">/</span>
+                                <span id="all-links-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal -->
+                <div class="module span-12 module--terminal">
+                    <div class="label label--muted">Ostatnie_akcje // terminal</div>
+                    <div class="terminal-container" id="terminal-feed">
+                        <!-- Ostatnie akcje (notatki, GitHub, nawigacja) -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: NETWORK -->
+        <div id="network" class="section">
+            <div class="dashboard-grid">
+                <div class="module span-12">
+                    <div class="links-header">
+                        <div class="label">Active_Node_Map</div>
+                        <div class="links-header__actions">
+                            <button type="button" class="notes-header__btn links-edit-mode-btn" id="links-edit-mode-btn"
+                                title="Włącz tryb edycji, aby usuwać linki">Tryb edycji</button>
+                            <button type="button" class="notes-header__btn" id="network-add-link-btn">Dodaj
+                                link</button>
+                            <button type="button" class="notes-header__btn-gh" id="network-github-token-btn">Token
+                                (linki)</button>
+                        </div>
+                    </div>
+                    <div class="node-map-container">
+                        <div id="network-links" class="node-map-links">
+                            <p class="empty-state-msg">LOADING_NODES...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: ARCHIVE -->
+        <div id="archive" class="section">
+            <div class="dashboard-grid">
+                <div class="module span-12">
+                    <div class="links-header">
+                        <div class="label">System_Archives</div>
+                        <div class="links-header__actions">
+                            <button type="button" class="notes-header__btn links-edit-mode-btn"
+                                id="links-edit-mode-btn-archive" title="Włącz tryb edycji, aby usuwać linki">Tryb
+                                edycji</button>
+                            <button type="button" class="notes-header__btn" id="archive-add-link-btn">Dodaj
+                                link</button>
+                            <button type="button" class="notes-header__btn-gh" id="archive-github-token-btn">Token
+                                (linki)</button>
+                        </div>
+                    </div>
+                    <div class="node-map-container">
+                        <div id="archive-links" class="node-map-links">
+                            <p class="empty-state-msg">LOADING_REGISTRY...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION: SYSTEM = Notes (notatnik lokalny) -->
+        <div id="system" class="section">
+            <div class="dashboard-grid">
+                <div class="module span-12">
+                    <div class="notes-header">
+                        <div class="label">Notes // notatnik lokalny</div>
+                        <div class="notes-header__actions">
+                            <button type="button" id="note-new-btn" class="notes-header__btn">Nowa notatka</button>
+                            <button type="button" id="note-push-github-btn" class="notes-header__btn-gh">Prześlij do
+                                GitHub</button>
+                            <button type="button" id="note-pull-github-btn" class="notes-header__btn-gh">Pobierz z
+                                GitHub</button>
+                            <button type="button" id="note-github-token-btn" class="notes-header__btn-gh">Token</button>
+                        </div>
+                    </div>
+                    <div class="notes-container">
+                        <div id="notes-list" class="notes-list">
+                            <p class="empty-state-msg">Brak notatek.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: formularz notatki -->
+        <div id="note-modal" class="note-modal" aria-hidden="true">
+            <div class="note-form">
+                <div class="note-form__title" id="note-form-title">Nowa notatka</div>
+                <label for="note-input-title">Tytuł</label>
+                <input type="text" id="note-input-title" placeholder="Tytuł notatki" maxlength="200">
+                <label for="note-input-content">Treść</label>
+                <textarea class="note-form__textarea" id="note-input-content" placeholder="Treść notatki"></textarea>
+                <div class="note-form__actions">
+                    <button type="button" class="note-form__cancel" id="note-cancel-btn">Anuluj</button>
+                    <button type="button" class="note-form__save" id="note-save-btn">Zapisz</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: potwierdzenie usunięcia (alert.css: system-alert-modal) -->
+        <div id="confirm-delete-overlay" class="alert-overlay" aria-hidden="true">
+            <div id="confirm-delete-modal" class="system-alert-modal" data-alert-type="critical" role="dialog"
+                aria-labelledby="confirm-delete-main-title">
+                <div class="modal-content">
+                    <div class="system-alert-header">
+                        <span class="system-alert-title">Potwierdzenie</span>
+                        <button type="button" class="close-btn" id="confirm-delete-cancel"
+                            aria-label="Zamknij">&times;</button>
+                    </div>
+                    <div class="system-alert-body">
+                        <div class="system-alert-main-title" id="confirm-delete-main-title">Usunąć notatkę?</div>
+                        <p class="confirm-message" id="confirm-delete-text">Czy na pewno usunąć tę notatkę? Operacja
+                            usunie ją także z GitHub (s-note.json).</p>
+                    </div>
+                    <div class="system-alert-footer">
+                        <button type="button" class="system-alert-btn cancel-btn" id="confirm-delete-cancel-btn"><i
+                                data-lucide="x"></i> Anuluj</button>
+                        <button type="button" class="system-alert-btn system-alert-btn-primary"
+                            id="confirm-delete-ok"><i data-lucide="trash-2"></i> Usuń</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: potwierdzenie usunięcia linku (styl strony) -->
+        <div id="confirm-delete-link-overlay" class="alert-overlay" aria-hidden="true">
+            <div id="confirm-delete-link-modal" class="system-alert-modal" data-alert-type="critical" role="dialog"
+                aria-labelledby="confirm-delete-link-title">
+                <div class="modal-content">
+                    <div class="system-alert-header">
+                        <span class="system-alert-title">Potwierdzenie</span>
+                        <button type="button" class="close-btn" id="confirm-delete-link-cancel"
+                            aria-label="Zamknij">&times;</button>
+                    </div>
+                    <div class="system-alert-body">
+                        <div class="system-alert-main-title" id="confirm-delete-link-title">Usunąć link?</div>
+                        <p class="confirm-message" id="confirm-delete-link-text">Link zostanie usunięty z GitHub.</p>
+                    </div>
+                    <div class="system-alert-footer">
+                        <button type="button" class="system-alert-btn cancel-btn" id="confirm-delete-link-cancel-btn"><i
+                                data-lucide="x"></i> Anuluj</button>
+                        <button type="button" class="system-alert-btn system-alert-btn-primary"
+                            id="confirm-delete-link-ok" data-link-id="" data-link-list=""><i data-lucide="trash-2"></i>
+                            Usuń</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: jeden token do wszystkiego (notatki + linki) -->
+        <div id="github-token-modal" class="note-modal github-token-modal" aria-hidden="true">
+            <div class="note-form">
+                <div class="note-form__title">Token GitHub (wszystko)</div>
+                <label for="github-token-input">Token (Personal Access Token)</label>
+                <input type="password" id="github-token-input" placeholder="ghp_..." autocomplete="off">
+                <p class="note-form__hint">Jeden token do wszystkiego: <strong>s-pro-v/fastnote</strong> (s-note.json),
+                    <strong>s-pro-v/json-lista</strong> (linki/home.json, linki/linki.json). Uprawnienie: repo.
+                </p>
+                <p class="note-form__hint">Lub: token z <strong>auth.json</strong> (matrix_pat, XOR) — kliknij „Pobierz
+                    z auth.json”.
+                </p>
+                <div class="note-form__actions">
+                    <button type="button" class="note-form__cancel" id="github-token-cancel">Anuluj</button>
+                    <button type="button" class="notes-header__btn-gh" id="github-token-load-auth-btn">Pobierz z
+                        auth.json</button>
+                    <button type="button" class="note-form__save" id="github-token-save">Zapisz</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: dodaj link (Network lub Archive) -->
+        <div id="link-add-modal" class="note-modal" aria-hidden="true">
+            <div class="note-form">
+                <div class="note-form__title" id="link-add-modal-title">Dodaj link</div>
+                <input type="hidden" id="link-add-list-type" value="">
+                <label for="link-add-name">Nazwa</label>
+                <input type="text" id="link-add-name" placeholder="Nazwa linku" maxlength="120">
+                <label for="link-add-url">URL</label>
+                <input type="url" id="link-add-url" placeholder="https://...">
+                <div class="note-form__actions">
+                    <button type="button" class="note-form__cancel" id="link-add-cancel">Anuluj</button>
+                    <button type="button" class="note-form__save" id="link-add-save">Dodaj</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- THEME TOGGLE -->
+    <div class="theme-toggle ripple-el" onclick="toggleTheme()">
+        <i data-lucide="sun" id="theme-icon"></i>
+        <span id="theme-text" class="theme-text">|</span>
+    </div>
+
+    <!-- Toast container (alert.css) -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="index.js"></script>
+
+
+</body>
+
+</html>

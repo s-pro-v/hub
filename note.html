@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRIVNOTE // GITHUB_UPLINK_PROTOCOL</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        /* CSS VARIABLES - COLOR PROTOCOL */
+        :root {
+            --bg-color: #f8f9fa;
+            --panel-bg: #ffffff;
+            --text-color: #212529;
+            --text-muted: #6c757d;
+            --highlight-color: #ff7300;
+            --border-color: #dee2e6;
+            --card-bg: #f8f9fa;
+            --status-active-bg: #28a745;
+            --font-main: 'JetBrains Mono', 'Share Tech Mono', monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #0d1117;
+                --panel-bg: #161b22;
+                --text-color: #c9d1d9;
+                --text-muted: #8b949e;
+                --highlight-color: #ff7300;
+                --border-color: #30363d;
+                --card-bg: #0d1117;
+            }
+        }
+
+        /* RESET & MANDATORY STYLES */
+        * {
+            box-sizing: border-box;
+            border-radius: 0 !important; /* STRICT REQUIREMENT */
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* NATIVE CSS NESTING LAYOUT */
+        .app-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.1);
+
+            & header {
+                border-bottom: 2px solid var(--highlight-color);
+                margin-bottom: 30px;
+                padding-bottom: 15px;
+
+                & h1 {
+                    font-size: 1.8rem;
+                    text-transform: uppercase;
+                    letter-spacing: 3px;
+                }
+
+                & .status-bar {
+                    font-size: 0.75rem;
+                    color: var(--text-muted);
+                    display: flex;
+                    justify-content: space-between;
+                }
+            }
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+
+            & label {
+                display: block;
+                font-size: 0.8rem;
+                font-weight: bold;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                color: var(--highlight-color);
+            }
+
+            & textarea, & input {
+                width: 100%;
+                background: var(--card-bg);
+                border: 1px solid var(--border-color);
+                color: var(--text-color);
+                padding: 12px;
+                font-family: var(--font-main);
+                outline: none;
+
+                &:focus {
+                    border-color: var(--highlight-color);
+                }
+            }
+
+            & textarea {
+                min-height: 250px;
+                resize: vertical;
+            }
+        }
+
+        .grid-config {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            border: 1px dashed var(--border-color);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* BUTTONS */
+        .terminal-btn {
+            background: var(--highlight-color);
+            color: #fff;
+            border: none;
+            padding: 15px 30px;
+            font-family: var(--font-main);
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s;
+
+            &:hover {
+                background: #e66700;
+            }
+
+            &.secondary {
+                background: transparent;
+                border: 1px solid var(--highlight-color);
+                color: var(--highlight-color);
+
+                &:hover {
+                    background: var(--highlight-color);
+                    color: #fff;
+                }
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: wait;
+            }
+        }
+
+        /* VIEWS CONTROL */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        .link-output {
+            background: var(--card-bg);
+            border: 1px solid var(--highlight-color);
+            padding: 20px;
+            word-break: break-all;
+            margin: 20px 0;
+            color: var(--highlight-color);
+            font-weight: bold;
+        }
+
+        /* GITHUB MODAL/DRAWER */
+        .github-panel {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(40, 167, 69, 0.05);
+            border-top: 2px solid var(--status-active-bg);
+
+            & h3 {
+                font-size: 0.9rem;
+                color: var(--status-active-bg);
+                margin-bottom: 15px;
+            }
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- VIEW: CREATE -->
+    <div id="view-create" class="view active">
+        <header>
+            <h1>Privnote // Nowa notatka</h1>
+            <div class="status-bar">
+                <span>STATUS: READY</span>
+                <span>ENC: AES-MOCK-PROT</span>
+            </div>
+        </header>
+
+        <div class="form-section">
+            <label>Treść wiadomości</label>
+            <textarea id="note-text" placeholder="Wprowadź tajne dane..."></textarea>
+        </div>
+
+        <div class="grid-config">
+            <div class="form-section">
+                <label>Własne hasło (opcjonalne)</label>
+                <input type="password" id="note-password" placeholder="Hasło szyfrujące">
+            </div>
+            <div class="form-section">
+                <label>Zniszcz po czasie</label>
+                <select id="expiry-time" class="terminal-btn secondary" style="width: 100%;">
+                    <option value="read">Po przeczytaniu</option>
+                    <option value="1h">1 godzina</option>
+                    <option value="24h">24 godziny</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="terminal-btn" id="btn-generate">Generuj link szyfrujący</button>
+    </div>
+
+    <!-- VIEW: SUCCESS / GITHUB SYNC -->
+    <div id="view-success" class="view">
+        <header>
+            <h1>Link wygenerowany</h1>
+            <div class="status-bar">
+                <span>STATUS: TRANSMITTING</span>
+                <span id="note-id-display">ID: NULL</span>
+            </div>
+        </header>
+        
+        <p>Wyślij ten link do odbiorcy. Pamiętaj, po odczycie dane zostaną wymazane.</p>
+        <div class="link-output" id="final-link"></div>
+
+        <div class="github-panel">
+            <h3>GitHub Persistence Protocol</h3>
+            <div class="form-section">
+                <label>GitHub Personal Access Token</label>
+                <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+            </div>
+            <button class="terminal-btn secondary" id="btn-gh-save">Zapisz jako Gist</button>
+            <button class="terminal-btn secondary" id="btn-snote-save">Zapisz do s-note.json (fastnote)</button>
+            <div id="gh-status" style="margin-top: 10px; font-size: 0.8rem;"></div>
+            <div id="snote-status" style="margin-top: 6px; font-size: 0.8rem;"></div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button class="terminal-btn" onclick="location.reload()">Nowa transmisja</button>
+        </div>
+    </div>
+
+    <!-- VIEW: READ -->
+    <div id="view-read" class="view">
+        <header>
+            <h1>Odczyt danych</h1>
+            <div class="status-bar">
+                <span>STATUS: DECRYPTING</span>
+            </div>
+        </header>
+        
+        <div id="read-auth" style="display:none;">
+            <div class="form-section">
+                <label>Notatka chroniona hasłem</label>
+                <input type="password" id="unlock-password" placeholder="Podaj hasło">
+            </div>
+            <button class="terminal-btn" id="btn-unlock">Autoryzuj i odczytaj</button>
+        </div>
+
+        <div id="read-content" style="display:none;">
+            <div class="form-section">
+                <label>Zdekodowana treść</label>
+                <textarea id="output-text" readonly></textarea>
+            </div>
+            <p style="color: var(--highlight-color);">UWAGA: Ta wiadomość właśnie uległa samozniszczeniu.</p>
+        </div>
+    </div>
+</div>
+
+<footer>
+    PRIVNOTE CLONE // VER 2.0-GH-SYNC // © 2024 IKATU // SYSTEM_READY
+</footer>
+
+<script>
+    // APP STATE
+    const state = {
+        currentNote: null,
+        noteId: window.location.hash.substring(1)
+    };
+
+    // UTILITIES
+    const showView = (id) => {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    };
+
+    // MOCK ENCRYPTION (Base64 for UI logic presentation)
+    const secureMsg = (text, pass) => btoa(encodeURIComponent(text + (pass ? `::${pass}` : '')));
+    const revealMsg = (cipher, pass) => {
+        try {
+            const raw = decodeURIComponent(atob(cipher));
+            if (pass) {
+                const parts = raw.split('::');
+                return parts[1] === pass ? parts[0] : null;
+            }
+            return raw.split('::')[0];
+        } catch(e) { return null; }
+    };
+
+    // CORE LOGIC
+    document.getElementById('btn-generate').addEventListener('click', () => {
+        const text = document.getElementById('note-text').value;
+        const pass = document.getElementById('note-password').value;
+
+        if (!text) return alert('Brak danych do zaszyfrowania.');
+
+        const id = Math.random().toString(36).substr(2, 9);
+        const encrypted = secureMsg(text, pass);
+
+        const payload = {
+            id,
+            data: encrypted,
+            protected: pass.length > 0,
+            pass: pass // In production, never store raw password
+        };
+
+        localStorage.setItem('gh_note_' + id, JSON.stringify(payload));
+        
+        const url = `${window.location.origin}${window.location.pathname}#${id}`;
+        document.getElementById('final-link').innerText = url;
+        document.getElementById('note-id-display').innerText = `ID: ${id}`;
+        state.currentNote = payload;
+        
+        showView('view-success');
+    });
+
+    // GitHub repo: s-note.json (https://github.com/s-pro-v/fastnote)
+    const GITHUB_REPO = 's-pro-v/fastnote';
+    const GITHUB_SNOTE_PATH = 's-note.json';
+    const GITHUB_API = 'https://api.github.com';
+
+    function getAuthHeaders(token) {
+        return {
+            'Accept': 'application/vnd.github+json',
+            'Authorization': 'Bearer ' + token
+        };
+    }
+
+    // GITHUB INTEGRATION – Gist
+    document.getElementById('btn-gh-save').addEventListener('click', async () => {
+        const token = document.getElementById('gh-token').value;
+        const status = document.getElementById('gh-status');
+        const btn = document.getElementById('btn-gh-save');
+
+        if (!token) return alert('Wymagany Token GitHub.');
+
+        btn.disabled = true;
+        status.innerText = "Łączenie z GitHub API...";
+
+        const gistData = {
+            description: "Privnote Encrypted Archive",
+            public: false,
+            files: {
+                [`note_${state.currentNote.id}.json`]: {
+                    content: JSON.stringify(state.currentNote, null, 2)
+                }
+            }
+        };
+
+        try {
+            const response = await fetch('https://api.github.com/gists', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(gistData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                status.style.color = 'var(--status-active-bg)';
+                status.innerHTML = `ZAPISANO! <a href="${result.html_url}" target="_blank" style="color:inherit;">Otwórz Gist</a>`;
+            } else {
+                throw new Error('Błąd autoryzacji lub limitu API');
+            }
+        } catch (err) {
+            status.style.color = 'red';
+            status.innerText = `BŁĄD: ${err.message}`;
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    // GITHUB INTEGRATION – zapis do s-note.json w repo fastnote
+    document.getElementById('btn-snote-save').addEventListener('click', async () => {
+        const token = document.getElementById('gh-token').value;
+        const statusEl = document.getElementById('snote-status');
+        const btn = document.getElementById('btn-snote-save');
+
+        if (!token) return alert('Wymagany Token GitHub (repo: ' + GITHUB_REPO + ').');
+        if (!state.currentNote) return alert('Brak notatki do zapisania.');
+
+        btn.disabled = true;
+        statusEl.style.color = '';
+        statusEl.innerText = 'Pobieranie s-note.json…';
+
+        try {
+            const getUrl = `${GITHUB_API}/repos/${GITHUB_REPO}/contents/${GITHUB_SNOTE_PATH}`;
+            const getRes = await fetch(getUrl, { headers: getAuthHeaders(token) });
+
+            let list = [];
+            let sha = null;
+
+            if (getRes.ok) {
+                const file = await getRes.json();
+                sha = file.sha;
+                if (file.content) {
+                    const raw = atob(file.content.replace(/\n/g, ''));
+                    const bytes = new Uint8Array([...raw].map((c) => c.charCodeAt(0)));
+                    const decoded = new TextDecoder().decode(bytes);
+                    try {
+                        list = JSON.parse(decoded);
+                        if (!Array.isArray(list)) list = [];
+                    } catch (_) {
+                        list = [];
+                    }
+                }
+            } else if (getRes.status !== 404) {
+                const err = await getRes.json().catch(() => ({}));
+                throw new Error(err.message || 'HTTP ' + getRes.status);
+            }
+
+            const entry = {
+                id: state.currentNote.id,
+                data: new Date().toISOString(),
+                note: state.currentNote.data
+            };
+            const existingIdx = list.findIndex((n) => n.id === state.currentNote.id);
+            if (existingIdx >= 0) list[existingIdx] = entry;
+            else list.push(entry);
+
+            statusEl.innerText = 'Wysyłanie do GitHub…';
+            const putUrl = `${GITHUB_API}/repos/${GITHUB_REPO}/contents/${GITHUB_SNOTE_PATH}`;
+            const jsonStr = JSON.stringify(list, null, 2);
+            const b64 = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16))));
+            const putBody = {
+                message: 'Privnote sync: ' + state.currentNote.id,
+                content: b64
+            };
+            if (sha) putBody.sha = sha;
+
+            const putRes = await fetch(putUrl, {
+                method: 'PUT',
+                headers: { ...getAuthHeaders(token), 'Content-Type': 'application/json' },
+                body: JSON.stringify(putBody)
+            });
+
+            if (!putRes.ok) {
+                const err = await putRes.json().catch(() => ({}));
+                throw new Error(err.message || 'HTTP ' + putRes.status);
+            }
+
+            statusEl.style.color = 'var(--status-active-bg)';
+            statusEl.innerHTML = 'Zapisano w <a href="https://github.com/' + GITHUB_REPO + '/blob/main/' + GITHUB_SNOTE_PATH + '" target="_blank" rel="noopener" style="color:inherit;">s-note.json</a>';
+        } catch (err) {
+            statusEl.style.color = 'red';
+            statusEl.innerText = 'Błąd: ' + (err.message || err);
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    // ROUTING / READ LOGIC
+    window.addEventListener('load', () => {
+        if (state.noteId) {
+            const raw = localStorage.getItem('gh_note_' + state.noteId);
+            if (!raw) {
+                alert('Notatka wygasła lub nie istnieje.');
+                location.hash = '';
+                location.reload();
+                return;
+            }
+
+            state.currentNote = JSON.parse(raw);
+            showView('view-read');
+
+            if (state.currentNote.protected) {
+                document.getElementById('read-auth').style.display = 'block';
+            } else {
+                displayNote();
+            }
+        }
+    });
+
+    function displayNote() {
+        const decrypted = revealMsg(state.currentNote.data, state.currentNote.pass);
+        document.getElementById('output-text').value = decrypted;
+        document.getElementById('read-auth').style.display = 'none';
+        document.getElementById('read-content').style.display = 'block';
+        
+        // AUTO-DESTRUCT
+        localStorage.removeItem('gh_note_' + state.noteId);
+    }
+
+    document.getElementById('btn-unlock').addEventListener('click', () => {
+        const input = document.getElementById('unlock-password').value;
+        if (input === state.currentNote.pass) {
+            displayNote();
+        } else {
+            alert('ODMOWA DOSTĘPU: Błędne hasło.');
+        }
+    });
+</script>
+
+</body>
+</html>

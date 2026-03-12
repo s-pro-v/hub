@@ -813,8 +813,8 @@ body::before {
     height: 558px;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-inset);
+    padding: 0.5rem;
+    overflow-y: auto;
 }
 
 .notes-list {
@@ -1303,3 +1303,4 @@ body.links-edit-mode .node-link-delete {
     color: var(--text-muted);
 
 }
+

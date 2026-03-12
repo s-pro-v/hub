@@ -810,7 +810,7 @@ body::before {
 }
 
 .notes-container {
-    min-height: 320px;
+    height: 558px;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     padding: 1.5rem;
@@ -1301,4 +1301,5 @@ body.links-edit-mode .node-link-delete {
 .node-link-delete:active {
     box-shadow: var(--shadow-inset);
     color: var(--text-muted);
+
 }

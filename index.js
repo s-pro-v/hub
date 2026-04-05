@@ -253,7 +253,7 @@ function loadArchiveLinks() {
                 const img = faviconUrl
                     ? `<img class="favicon" src="${faviconUrl}" alt="" onerror="handleFaviconError(this, this.closest('a'))"><i data-lucide="link" style="display:none;"></i>`
                     : '<i data-lucide="link"></i>';
-                return `<div class="node-link-wrap" data-id="${id}" data-name="${name}"><a href="${url}" target="_blank" rel="noopener" class="node-link ripple-el">${img} <span class="node-link__name">${name}</span></a><button type="button" class="node-link-delete" aria-label="Usuń" data-id="${id}" data-name="${name}"><i data-lucide="trash-2"></i></button></div>`;
+                return `<div class="node-link-wrap" data-id="${id}" data-name="${name}"><a href="${url}" target="_blank" rel="noopener" title="${name}" class="node-link ripple-el">${img} <span class="node-link__name">${name}</span></a><button type="button" class="node-link-delete" aria-label="Usuń" data-id="${id}" data-name="${name}"><i data-lucide="trash-2"></i></button></div>`;
             }).join('');
             lucide.createIcons();
             archiveLinksEl.querySelectorAll('.node-link-delete').forEach(btn => {
@@ -309,7 +309,7 @@ function loadNetworkLinks() {
                 const img = faviconUrl
                     ? `<img class="favicon" src="${faviconUrl}" alt="" onerror="handleFaviconError(this, this.closest('a'))"><i data-lucide="server" style="display:none;"></i>`
                     : '<i data-lucide="server"></i>';
-                return `<div class="node-link-wrap" data-id="${id}" data-name="${name}"><a href="${url}" target="_blank" rel="noopener" class="node-link ripple-el">${img} <span class="node-link__name">${name}</span></a><button type="button" class="node-link-delete" aria-label="Usuń" data-id="${id}" data-name="${name}"><i data-lucide="trash-2"></i></button></div>`;
+                return `<div class="node-link-wrap" data-id="${id}" data-name="${name}"><a href="${url}" target="_blank" rel="noopener" title="${name}" class="node-link ripple-el">${img} <span class="node-link__name">${name}</span></a><button type="button" class="node-link-delete" aria-label="Usuń" data-id="${id}" data-name="${name}"><i data-lucide="trash-2"></i></button></div>`;
             }).join('');
             lucide.createIcons();
             networkLinksEl.querySelectorAll('.node-link-delete').forEach(btn => {

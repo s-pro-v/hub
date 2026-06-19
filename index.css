@@ -1511,3 +1511,9 @@ body.links-edit-mode .node-link-delete {
     color: var(--text-muted);
 
 }
+
+@media(min-width: 768px){
+.notes-list {
+display: flex;
+    }
+}

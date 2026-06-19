@@ -1512,8 +1512,10 @@ body.links-edit-mode .node-link-delete {
 
 }
 
-@media(min-width: 768px){
-.notes-list {
-display: flex;
+@media (max-width: 767px) {
+    .notes-list { 
+        display: flex;
+        flex-direction: column; /* Elementy układają się w pionie */
+        gap: 0.5rem;
     }
 }

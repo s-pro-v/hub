@@ -142,45 +142,9 @@ function domainFromUrl(href) {
   }
 }
 
-function extractUrl(url) {
-  if (!url) return "";
-  let targetUrl = (url + "").trim();
-  // Check if it's a <link ... href="..."> tag
-  if (/<link\s+[^>]*href=["']([^"']+)["']/i.test(targetUrl)) {
-    const match = targetUrl.match(/href=["']([^"']+)["']/i);
-    if (match && match[1]) {
-      targetUrl = match[1];
-    }
-  }
-  return targetUrl;
-}
-
 function getFaviconUrl(url) {
   if (!url || url === "#") return "";
-  const targetUrl = extractUrl(url);
-
-  // 1. Hardcoded check for editor_code
-  if (targetUrl.includes("s-pro-v.github.io/editor_code") || targetUrl.includes("editor_code")) {
-    return "https://raw.githubusercontent.com/s-pro-v/editor_code/refs/heads/main/favicon/oxy_edytor.png";
-  }
-  
-  // Check if targetUrl itself is a direct image URL or contains favicon path
-  const lowerUrl = targetUrl.toLowerCase();
-  const isDirectImage = lowerUrl.endsWith(".png") || 
-                        lowerUrl.endsWith(".ico") || 
-                        lowerUrl.endsWith(".jpg") || 
-                        lowerUrl.endsWith(".jpeg") || 
-                        lowerUrl.endsWith(".svg") || 
-                        lowerUrl.endsWith(".gif") || 
-                        lowerUrl.includes("/favicon/") ||
-                        lowerUrl.includes("favicon.png") ||
-                        lowerUrl.includes("favicon.ico");
-
-  if (isDirectImage) {
-    return targetUrl;
-  }
-
-  const cleanUrl = targetUrl
+  const cleanUrl = (url + "")
     .replace(/^https?:\/\//, "")
     .replace(/^www\./, "")
     .split("/")[0];
@@ -190,71 +154,9 @@ function getFaviconUrl(url) {
   return `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${cleanUrl}&size=32`;
 }
 
-function fetchGithubPagesFavicon(url, imgElement) {
-  const match = url.match(/https?:\/\/([a-zA-Z0-9\-]+)\.github\.io\/([a-zA-Z0-9\-_]+)/i);
-  if (!match) return false;
-  
-  const username = match[1];
-  const repo = match[2];
-  
-  const rawBaseUrl = `https://raw.githubusercontent.com/${username}/${repo}`;
-  const branches = ["main", "master"];
-  let currentBranchIndex = 0;
-  
-  function tryBranch() {
-    if (currentBranchIndex >= branches.length) {
-      showFaviconFallback(imgElement);
-      return;
-    }
-    const branch = branches[currentBranchIndex];
-    const indexUrl = `${rawBaseUrl}/${branch}/index.html`;
-    
-    fetch(indexUrl)
-      .then(res => {
-        if (!res.ok) throw new Error("Branch not found");
-        return res.text();
-      })
-      .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, "text/html");
-        const iconLink = doc.querySelector('link[rel~="icon"]');
-        if (iconLink) {
-          const href = iconLink.getAttribute("href");
-          if (href) {
-            let resolvedUrl = href.trim();
-            if (!resolvedUrl.startsWith("http://") && !resolvedUrl.startsWith("https://")) {
-              const pageBase = `https://${username}.github.io/${repo}/`;
-              resolvedUrl = new URL(resolvedUrl, pageBase).href;
-            }
-            imgElement.src = resolvedUrl;
-            imgElement.removeAttribute("onerror"); // Clear onerror to prevent loops
-            return;
-          }
-        }
-        showFaviconFallback(imgElement);
-      })
-      .catch(() => {
-        currentBranchIndex++;
-        tryBranch();
-      });
-  }
-  
-  tryBranch();
-  return true;
-}
-
 function handleFaviconError(imgElement, anchor) {
   const attempt = parseInt(imgElement.dataset.attempt, 10) || 1;
   const url = (anchor && anchor.href) || "";
-
-  // Check if it's a GitHub Pages URL
-  if (attempt === 1 && /github\.io/i.test(url)) {
-    if (fetchGithubPagesFavicon(url, imgElement)) {
-      imgElement.dataset.attempt = "2";
-      return;
-    }
-  }
-
   const cleanUrl = url
     .replace(/^https?:\/\//, "")
     .replace(/^www\./, "")
@@ -417,9 +319,8 @@ function loadArchiveLinks() {
         .map((node) => {
           const id = (node.id || "").replace(/"/g, "&quot;");
           const name = (node.name || node.id || "").replace(/"/g, "&quot;");
-          const rawUrl = node.url || "#";
-          const url = extractUrl(rawUrl).replace(/"/g, "&quot;");
-          const faviconUrl = getFaviconUrl(rawUrl);
+          const url = (node.url || "#").replace(/"/g, "&quot;");
+          const faviconUrl = getFaviconUrl(node.url || "");
           const img = faviconUrl
             ? `<img class="favicon" src="${faviconUrl}" alt="" onerror="handleFaviconError(this, this.closest('a'))"><i data-lucide="link" style="display:none;"></i>`
             : '<i data-lucide="link"></i>';
@@ -480,9 +381,8 @@ function loadNetworkLinks() {
         .map((node) => {
           const id = (node.id || "").replace(/"/g, "&quot;");
           const name = (node.name || node.id || "").replace(/"/g, "&quot;");
-          const rawUrl = node.url || "#";
-          const url = extractUrl(rawUrl).replace(/"/g, "&quot;");
-          const faviconUrl = getFaviconUrl(rawUrl);
+          const url = (node.url || "#").replace(/"/g, "&quot;");
+          const faviconUrl = getFaviconUrl(node.url || "");
           const img = faviconUrl
             ? `<img class="favicon" src="${faviconUrl}" alt="" onerror="handleFaviconError(this, this.closest('a'))"><i data-lucide="server" style="display:none;"></i>`
             : '<i data-lucide="server"></i>';
@@ -551,7 +451,7 @@ function doDeleteNetworkLink(id) {
 
 function addNetworkLink(payload) {
   const name = (payload.name || "").trim();
-  const url = extractUrl((payload.url || "").trim());
+  const url = (payload.url || "").trim();
   if (!name || !url) {
     showToast("Podaj nazwę i URL.", "warning");
     return;
@@ -649,7 +549,7 @@ function slugId(name) {
 
 function addArchiveLink(payload) {
   const name = (payload.name || "").trim();
-  const url = extractUrl((payload.url || "").trim());
+  const url = (payload.url || "").trim();
   if (!name || !url) {
     showToast("Podaj nazwę i URL.", "warning");
     return;
@@ -1220,7 +1120,7 @@ document
       })
       .finally(function () {
         btn.disabled = false;
-        btn.textContent = "Pobierz z auth.json";
+        btn.textContent = "Auth.json";
       });
   });
 document.getElementById("github-token-save")?.addEventListener("click", () => {
@@ -1527,7 +1427,19 @@ document.addEventListener(
   },
   { passive: true },
 );
-
+// --- SYSTEM: PWA SERVICE WORKER ---
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then((registration) => {
+        logToTerminal("SYS.WORKER: ONLINE (Scope: " + registration.scope + ")");
+      })
+      .catch((error) => {
+        logToTerminal("SYS.WORKER: ERROR -> " + error);
+      });
+  });
+}
 // Add these to your existing script section
 document.addEventListener("DOMContentLoaded", function () {
   // Remove draggable attribute from all elements

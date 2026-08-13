@@ -3,7 +3,14 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- PWA & Mobile Web App Meta -->
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f8f9fa" media="(prefers-color-scheme: light)">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MATRIX v8">
     <title>UPLINK // COMMAND_CENTER_V8 // EXPANDED_NODE_CONTROL</title>
     <link
         href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@700&family=Share+Tech+Mono&display=swap"
@@ -11,6 +18,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="alert.css">
     <link rel="stylesheet" href="index.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
@@ -302,8 +310,8 @@
                 </p>
                 <div class="note-form__actions">
                     <button type="button" class="note-form__cancel" id="github-token-cancel">Anuluj</button>
-                    <button type="button" class="notes-header__btn-gh" id="github-token-load-auth-btn">Pobierz z
-                        auth.json</button>
+                    <button type="button" class="notes-header__btn-gh" id="github-token-load-auth-btn">
+                        Auth.json</button>
                     <button type="button" class="note-form__save" id="github-token-save">Zapisz</button>
                 </div>
             </div>

@@ -952,28 +952,27 @@ body::before {
 
 /* --- ACTIVE NODE MAP LINKS --- */
 .node-map-container {
-    height: 558px;
+    height: 561px;
     background: var(--bg-tertiary);
     border: 1px dashed var(--border-color);
-    padding: 1rem;
+    padding: 0.125rem;
     overflow-y: auto;
 }
 
 .node-map-links {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 0.2rem;
+    grid-template-columns: repeat(auto-fill, minmax(239px, 1fr));
+    gap: 0.125rem;
     border: 1px solid var(--bg-color);
-    padding: 0.2rem;
+    padding: 0.125rem;
     background: var(--panel-bg);
     box-shadow: var(--shadow-inset);
 }
 
 .node-link {
     display: flex;
-    align-items: center;
     gap: 10px;
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 0.5rem;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
@@ -981,6 +980,7 @@ body::before {
     font-size: 0.8rem;
     transition: all 0.2s;
     box-shadow: var(--shadow-drop);
+    align-items: center;
 }
 
 .node-link:hover {
@@ -1018,10 +1018,10 @@ body::before {
 }
 
 .notes-container {
-    height: 558px;
+    height: 543px;
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
-    padding: 0.5rem;
+    padding: 0.125rem;
     overflow-y: auto;
 }
 
@@ -1033,12 +1033,12 @@ body::before {
 
 .note-card {
     display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-left: 3px solid transparent;
+    border-left: 2px solid transparent;
     color: var(--text-primary);
     text-decoration: none;
     transition: all var(--transition-speed);
@@ -1066,12 +1066,24 @@ body::before {
     font-weight: 700;
     margin-bottom: 0.35rem;
     letter-spacing: 1px;
+    background: var(--bg);
+    padding: 0.125rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .note-card__excerpt {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
-    line-height: 1.4;
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 418px;
+    display: block;
 }
 
 .note-card__meta {
@@ -1083,15 +1095,14 @@ body::before {
 .note-card__delete {
     flex-shrink: 0;
     padding: 0.35rem;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
+    background: transparent;
+    border: transparent;
     color: var(--text-muted);
     cursor: pointer;
-    transition:
-        color 0.2s,
-        background 0.2s,
-        border-color 0.2s;
-    box-shadow: var(--shadow-drop);
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .note-card__delete:hover {
@@ -1225,9 +1236,16 @@ body::before {
 
 .note-form__actions {
     display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
+    gap: 0.125rem;
     margin-top: 1rem;
+    box-shadow: var(--shadow-inset);
+    padding: 0.125rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 }
 
 .note-form__actions button {
@@ -1238,11 +1256,9 @@ body::before {
     border: 1px solid var(--border-color);
     background: var(--bg-tertiary);
     color: var(--text-muted);
-    transition:
-        color 0.2s,
-        background 0.2s,
-        border-color 0.2s;
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
     box-shadow: var(--shadow-drop);
+    width: 100%;
 }
 
 .note-form__actions .note-form__save {
@@ -1270,8 +1286,13 @@ body::before {
 .notes-header__actions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.125rem;
     flex-wrap: wrap;
+    box-shadow: var(--shadow-inset);
+    padding: 0.125rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
 .notes-header__btn {
@@ -1431,8 +1452,13 @@ body::before {
 
 .links-header__actions {
     display: flex;
-    gap: 8px;
+    gap: 0.125rem;
     flex-wrap: wrap;
+    box-shadow: var(--shadow-inset);
+    padding: 0.125rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
 }
 
 .links-header__actions .notes-header__btn {
@@ -1513,9 +1539,10 @@ body.links-edit-mode .node-link-delete {
 }
 
 @media (max-width: 767px) {
-    .notes-list { 
+    .notes-list {
         display: flex;
-        flex-direction: column; /* Elementy układają się w pionie */
+        flex-direction: column;
+        /* Elementy układają się w pionie */
         gap: 0.5rem;
     }
 }
